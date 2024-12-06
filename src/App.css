@@ -19,6 +19,7 @@ body {
 
 .display {
   font-size: 2.5em;
+  height: 80px;
   text-align: right;
   padding: 20px;
   background-color: #333;
@@ -77,24 +78,30 @@ button.equal {
 }
 
 button.clear {
-  background-color: #d69d17;
+  background-color: #f3af10;
   color: white;
 }
 
 button.percent {
-  background-color: #f1f1f1;
+  background-color:#f3af10;
+  color: white;
 }
 
 button.number {
   background-color: #f1f1f1;
 }
 
-button.zero {
-  grid-column: span 2; 
-}
 
 button.dot {
   background-color: #f1f1f1;
+}
+
+button.backspace {
+  background-color: #f1c40f;
+}
+
+button.backspace:hover {
+  background-color: #e2b607;
 }
 
 
@@ -110,9 +117,9 @@ button.percent {
 
 
 button.zero {
-  grid-column: span 2; 
+  grid-column: span 1; 
 }
 
 button.equal {
-  grid-column: span 2; /
+  grid-column: span 0; 
 }
