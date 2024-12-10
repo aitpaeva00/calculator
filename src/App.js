@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
+
+import { act } from 'react';
+
 import './App.css';
+import { evaluate } from 'mathjs'; 
 
 function App() {
   const [display, setDisplay] = useState('');
@@ -8,14 +12,15 @@ function App() {
 
   const handleKeyPress = (event) => {
     const { key } = event;
-    if (!isNaN(key) || '+-*/().'.includes(key)) {
-      handleInput(key);
-    } else if (key === 'Enter') {
+
+    if (key === 'Enter') {
       calculate();
     } else if (key === 'Backspace') {
       handleBackspace();
     } else if (key === 'c' || key === 'C') {
       clear();
+    } else if (!isNaN(key) || '+-*/().'.includes(key)) {
+      handleInput(key);
     }
   };
 
@@ -24,19 +29,23 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, []);
+  }, [handleKeyPress]);
 
+  
   const handleInput = (input) => {
     setDisplay((prev) => prev + input);
   };
 
+  
   const clear = () => {
     setDisplay('');
   };
 
+
   const handleBackspace = () => {
     setDisplay((prev) => prev.slice(0, -1));
   };
+
 
   const toRadians = (angle) => {
     if (isDegrees) {
@@ -45,17 +54,19 @@ function App() {
     return parseFloat(angle);
   };
 
+  
   const handlePercent = (value) => {
     return value * 0.01;
   };
 
+
   const normalizeExpression = (expr) => {
     return expr.replace(/(\-{2,})/g, (match) => {
-      
       return match.length % 2 === 0 ? '+' : '-';
     });
   };
 
+  
   const calculate = () => {
     try {
       if (display.includes('/0')) {
@@ -63,7 +74,6 @@ function App() {
         return;
       }
 
-      
       let formattedExpression = normalizeExpression(display);
 
       
@@ -74,13 +84,9 @@ function App() {
         .replace(/tan\((.*?)\)/g, (_, angle) => `Math.tan(${toRadians(angle)})`)
         .replace(/√\((.*?)\)/g, (_, number) => `Math.sqrt(${number})`);
 
-      
-      const result = Function(`
-        "use strict"; 
-        return ${formattedExpression};
-      `)();
+    
+      const result = evaluate(formattedExpression);
 
-      
       const roundedResult = roundToPrecision(result, 10);
       setDisplay(roundedResult.toString());
     } catch (error) {
@@ -153,4 +159,3 @@ function App() {
 }
 
 export default App;
-
