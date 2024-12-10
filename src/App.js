@@ -4,8 +4,9 @@ import './App.css';
 function App() {
   const [display, setDisplay] = useState('');
   const [scientificMode, setScientificMode] = useState(false);
+  const [isDegrees, setIsDegrees] = useState(true); 
 
-  // Handle keyboard input
+  
   const handleKeyPress = (event) => {
     const { key } = event;
     if (!isNaN(key) || '+-*/().'.includes(key)) {
@@ -38,41 +39,79 @@ function App() {
     setDisplay((prev) => prev.slice(0, -1));
   };
 
+  
+  const toRadians = (angle) => {
+    if (isDegrees) {
+      return (parseFloat(angle) * Math.PI) / 180;
+    }
+    return parseFloat(angle); 
+  };
+
+  
+  const handlePercent = (value) => {
+    return value * 0.01; 
+  };
+
+  
   const calculate = () => {
     try {
       if (display.includes('/0')) {
-        setDisplay('Error: Division by 0');
+        setDisplay('Error');
         return;
       }
 
-      // Replace scientific functions and calculate correctly
-      const result = eval(
-        display
-          .replace(/sin\((.*?)\)/g, (_, angle) => `Math.sin(${toRadians(angle)})`)
-          .replace(/cos\((.*?)\)/g, (_, angle) => `Math.cos(${toRadians(angle)})`)
-          .replace(/tan\((.*?)\)/g, (_, angle) => `Math.tan(${toRadians(angle)})`)
-          .replace(/√\((.*?)\)/g, (_, number) => `Math.sqrt(${number})`)
-      );
-      setDisplay(result.toString());
+      
+      let formattedExpression = display
+        .replace(/(\d+)%/g, (_, number) => `${handlePercent(number)}`) 
+        .replace(/sin\((.*?)\)/g, (_, angle) => `Math.sin(${toRadians(angle)})`) 
+        .replace(/cos\((.*?)\)/g, (_, angle) => `Math.cos(${toRadians(angle)})`) 
+        .replace(/tan\((.*?)\)/g, (_, angle) => `Math.tan(${toRadians(angle)})`) 
+        .replace(/√\((.*?)\)/g, (_, number) => `Math.sqrt(${number})`); 
+
+      
+      const result = Function(`
+        "use strict"; 
+        return ${formattedExpression};
+      `)();
+
+      
+      const roundedResult = roundToPrecision(result, 8);
+      setDisplay(roundedResult.toString());
     } catch (error) {
       setDisplay('Error');
     }
+  };
+
+  
+  const roundToPrecision = (value, precision) => {
+    const scale = Math.pow(10, precision);
+    return Math.round(value * scale) / scale;
   };
 
   const toggleScientificMode = () => {
     setScientificMode(!scientificMode);
   };
 
+  const toggleDegreeRad = () => {
+    setIsDegrees(!isDegrees); 
+  };
+
   const handleScientificFunction = (func) => {
     setDisplay((prev) => `${prev}${func}(`);
   };
 
-  const toRadians = (angle) => {
-    return (parseFloat(angle) * Math.PI) / 180;
-  };
-
   return (
     <div className="calculator">
+      <div className="header">
+        <div className="mode-controls">
+          <span className="mode-toggle" onClick={toggleDegreeRad}>
+            {isDegrees ? 'deg' : 'rad'}
+          </span>
+          <span className="scientific-mode-toggle" onClick={toggleScientificMode}>
+            {scientificMode ? 'Scientific' : 'Basic'}
+          </span>
+        </div>
+      </div>
       <div className="display">{display || '0'}</div>
       <div className="buttons">
         <button onClick={clear} className="clear">C</button>
@@ -102,11 +141,8 @@ function App() {
         <button onClick={() => handleInput('0')} className="zero">0</button>
         <button onClick={() => handleInput('.')} className="dot">.</button>
         <button onClick={calculate} className="equal">=</button>
-        <button onClick={() => handleInput(')')} className="parenthesis">)</button> {/* Закрывающая скобка */}
+        <button onClick={() => handleInput(')')} className="parenthesis">()</button>
       </div>
-      <button onClick={toggleScientificMode} className="toggle-mode">
-        {scientificMode ? 'Basic Mode' : 'Scientific Mode'}
-      </button>
     </div>
   );
 }
