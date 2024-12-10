@@ -4,9 +4,8 @@ import './App.css';
 function App() {
   const [display, setDisplay] = useState('');
   const [scientificMode, setScientificMode] = useState(false);
-  const [isDegrees, setIsDegrees] = useState(true); 
+  const [isDegrees, setIsDegrees] = useState(true);
 
-  
   const handleKeyPress = (event) => {
     const { key } = event;
     if (!isNaN(key) || '+-*/().'.includes(key)) {
@@ -39,20 +38,24 @@ function App() {
     setDisplay((prev) => prev.slice(0, -1));
   };
 
-  
   const toRadians = (angle) => {
     if (isDegrees) {
       return (parseFloat(angle) * Math.PI) / 180;
     }
-    return parseFloat(angle); 
+    return parseFloat(angle);
   };
 
-  
   const handlePercent = (value) => {
-    return value * 0.01; 
+    return value * 0.01;
   };
 
-  
+  const normalizeExpression = (expr) => {
+    return expr.replace(/(\-{2,})/g, (match) => {
+      
+      return match.length % 2 === 0 ? '+' : '-';
+    });
+  };
+
   const calculate = () => {
     try {
       if (display.includes('/0')) {
@@ -61,12 +64,15 @@ function App() {
       }
 
       
-      let formattedExpression = display
-        .replace(/(\d+)%/g, (_, number) => `${handlePercent(number)}`) 
-        .replace(/sin\((.*?)\)/g, (_, angle) => `Math.sin(${toRadians(angle)})`) 
-        .replace(/cos\((.*?)\)/g, (_, angle) => `Math.cos(${toRadians(angle)})`) 
-        .replace(/tan\((.*?)\)/g, (_, angle) => `Math.tan(${toRadians(angle)})`) 
-        .replace(/√\((.*?)\)/g, (_, number) => `Math.sqrt(${number})`); 
+      let formattedExpression = normalizeExpression(display);
+
+      
+      formattedExpression = formattedExpression
+        .replace(/(\d+)%/g, (_, number) => `${handlePercent(number)}`)
+        .replace(/sin\((.*?)\)/g, (_, angle) => `Math.sin(${toRadians(angle)})`)
+        .replace(/cos\((.*?)\)/g, (_, angle) => `Math.cos(${toRadians(angle)})`)
+        .replace(/tan\((.*?)\)/g, (_, angle) => `Math.tan(${toRadians(angle)})`)
+        .replace(/√\((.*?)\)/g, (_, number) => `Math.sqrt(${number})`);
 
       
       const result = Function(`
@@ -75,14 +81,13 @@ function App() {
       `)();
 
       
-      const roundedResult = roundToPrecision(result, 8);
+      const roundedResult = roundToPrecision(result, 10);
       setDisplay(roundedResult.toString());
     } catch (error) {
       setDisplay('Error');
     }
   };
 
-  
   const roundToPrecision = (value, precision) => {
     const scale = Math.pow(10, precision);
     return Math.round(value * scale) / scale;
@@ -93,7 +98,7 @@ function App() {
   };
 
   const toggleDegreeRad = () => {
-    setIsDegrees(!isDegrees); 
+    setIsDegrees(!isDegrees);
   };
 
   const handleScientificFunction = (func) => {
@@ -148,3 +153,4 @@ function App() {
 }
 
 export default App;
+
