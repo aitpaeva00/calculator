@@ -1,4 +1,4 @@
-/* Общие стили */
+
 body {
   font-family: 'Helvetica', sans-serif;
   display: flex;
@@ -9,7 +9,7 @@ body {
   margin: 0;
 }
 
-/* Стили калькулятора */
+
 .calculator {
   background-color: #ffffff;
   border-radius: 30px;
@@ -19,7 +19,7 @@ body {
   padding: 20px;
 }
 
-/* Экран отображения результата */
+
 .display {
   font-size: 2.5em;
   height: 80px;
@@ -33,7 +33,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Стили для кнопок */
+
 .buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -43,7 +43,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Стили для каждой кнопки */
+
 button {
   background-color: #f1f1f1;
   border: none;
@@ -66,14 +66,14 @@ button:hover {
 
 button:active {
   background-color: #d0d0d0;
-  transform: scale(0.95); /* Плавное уменьшение кнопки при нажатии */
+  transform: scale(0.95); 
 }
 
 button:focus {
   outline: none;
 }
 
-/* Операционные кнопки (например, +, -, ×, ÷) */
+
 button.operation {
   background-color: #f3af10;
   color: white;
@@ -102,7 +102,7 @@ button.dot {
   background-color: #f1f1f1;
 }
 
-/* Специальные кнопки */
+
 button.backspace {
   background-color: #f1c40f;
   color: white;
@@ -112,12 +112,12 @@ button.backspace:hover {
   background-color: #e2b607;
 }
 
-/* Кнопка "0" будет шире */
+
 button.zero {
   grid-column: span 1;
 }
 
-/* Стили для переключателей и верхней панели */
+/
 .header {
   display: flex;
   justify-content: space-between;
@@ -147,7 +147,7 @@ button.zero {
   color: #0056b3;
 }
 
-/* Мобильные адаптивные стили */
+
 @media (max-width: 400px) {
   .calculator {
     width: 100%;
