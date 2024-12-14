@@ -103,16 +103,6 @@ button.dot {
 }
 
 
-button.backspace {
-  background-color: #f1c40f;
-  color: white;
-}
-
-button.backspace:hover {
-  background-color: #e2b607;
-}
-
-
 button.zero {
   grid-column: span 1;
 }

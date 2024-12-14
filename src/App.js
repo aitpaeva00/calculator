@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
-
-import { act } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import { evaluate } from 'mathjs';
 import './App.css';
-import { evaluate } from 'mathjs'; 
 
 function App() {
   const [display, setDisplay] = useState('');
@@ -15,8 +12,6 @@ function App() {
 
     if (key === 'Enter') {
       calculate();
-    } else if (key === 'Backspace') {
-      handleBackspace();
     } else if (key === 'c' || key === 'C') {
       clear();
     } else if (!isNaN(key) || '+-*/().'.includes(key)) {
@@ -24,79 +19,65 @@ function App() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [handleKeyPress]);
+  }, []);
 
-  
   const handleInput = (input) => {
+   
+    if (input === '.') {
+      if (display.split(/[\+\-\*\/\(\)]/).pop().includes('.')) return;
+    }
+
+    
+    if (input === '(' && display.includes(')') && !display.includes('(')) return;
+
+   
+    if (input === ')') {
+      const openCount = (display.match(/\(/g) || []).length;
+      const closeCount = (display.match(/\)/g) || []).length;
+      if (closeCount >= openCount) return;
+    }
+
     setDisplay((prev) => prev + input);
   };
 
-  
   const clear = () => {
     setDisplay('');
   };
 
 
-  const handleBackspace = () => {
-    setDisplay((prev) => prev.slice(0, -1));
-  };
-
-
-  const toRadians = (angle) => {
-    if (isDegrees) {
-      return (parseFloat(angle) * Math.PI) / 180;
-    }
-    return parseFloat(angle);
-  };
-
-  
-  const handlePercent = (value) => {
-    return value * 0.01;
-  };
-
-
-  const normalizeExpression = (expr) => {
-    return expr.replace(/(\-{2,})/g, (match) => {
-      return match.length % 2 === 0 ? '+' : '-';
-    });
-  };
-
-  
   const calculate = () => {
     try {
       if (display.includes('/0')) {
         setDisplay('Error');
         return;
       }
-
-      let formattedExpression = normalizeExpression(display);
-
-      
+  
+      let formattedExpression = display;
+  
       formattedExpression = formattedExpression
-        .replace(/(\d+)%/g, (_, number) => `${handlePercent(number)}`)
         .replace(/sin\((.*?)\)/g, (_, angle) => `Math.sin(${toRadians(angle)})`)
         .replace(/cos\((.*?)\)/g, (_, angle) => `Math.cos(${toRadians(angle)})`)
         .replace(/tan\((.*?)\)/g, (_, angle) => `Math.tan(${toRadians(angle)})`)
-        .replace(/√\((.*?)\)/g, (_, number) => `Math.sqrt(${number})`);
-
-    
+        .replace(/\u221a\((.*?)\)/g, (_, number) => `Math.sqrt(${number})`); 
+  
       const result = evaluate(formattedExpression);
-
-      const roundedResult = roundToPrecision(result, 10);
-      setDisplay(roundedResult.toString());
+      setDisplay(result.toString());
     } catch (error) {
+      console.log(error)
       setDisplay('Error');
     }
   };
 
-  const roundToPrecision = (value, precision) => {
-    const scale = Math.pow(10, precision);
-    return Math.round(value * scale) / scale;
+  const toRadians = (angle) => {
+    if (isDegrees) {
+      return (parseFloat(angle) * Math.PI) / 180;
+    }
+    return parseFloat(angle);
   };
 
   const toggleScientificMode = () => {
@@ -125,34 +106,40 @@ function App() {
       </div>
       <div className="display">{display || '0'}</div>
       <div className="buttons">
-        <button onClick={clear} className="clear">C</button>
-        <button onClick={handleBackspace} className="backspace">DEL</button>
+        <button onClick={clear} className="clear">AC</button>
         <button onClick={() => handleInput('%')} className="percent">%</button>
         <button onClick={() => handleInput('/')} className="operation">÷</button>
+
+
         {scientificMode && (
           <>
-            <button onClick={() => handleScientificFunction('sin')} className="operation">sin</button>
-            <button onClick={() => handleScientificFunction('cos')} className="operation">cos</button>
-            <button onClick={() => handleScientificFunction('tan')} className="operation">tan</button>
-            <button onClick={() => handleScientificFunction('√')} className="operation">√</button>
+          <button onClick={() => handleScientificFunction('sin')} className="operation">sin</button>
+           <button onClick={() => handleScientificFunction('cos')} className="operation">cos</button>
+          <button onClick={() => handleScientificFunction('tan')} className="operation">tan</button>
+          <button onClick={() => handleScientificFunction('√')} className="operation">√</button>
           </>
         )}
+        <button onClick={() => handleInput('*')} className="operation">×</button>
+      
+
         <button onClick={() => handleInput('7')}>7</button>
         <button onClick={() => handleInput('8')}>8</button>
         <button onClick={() => handleInput('9')}>9</button>
-        <button onClick={() => handleInput('*')} className="operation">×</button>
+        <button onClick={() => handleInput('-')} className="operation">−</button>
+
         <button onClick={() => handleInput('4')}>4</button>
         <button onClick={() => handleInput('5')}>5</button>
         <button onClick={() => handleInput('6')}>6</button>
-        <button onClick={() => handleInput('-')} className="operation">−</button>
+        <button onClick={() => handleInput('+')} className="operation">+</button>
+
         <button onClick={() => handleInput('1')}>1</button>
         <button onClick={() => handleInput('2')}>2</button>
         <button onClick={() => handleInput('3')}>3</button>
-        <button onClick={() => handleInput('+')} className="operation">+</button>
-        <button onClick={() => handleInput('0')} className="zero">0</button>
         <button onClick={() => handleInput('.')} className="dot">.</button>
+        <button onClick={() => handleInput('0')} className="zero">0</button>
+        <button onClick={() => handleInput('(')} className="parenthesis">(</button>
+        <button onClick={() => handleInput(')')} className="parenthesis">)</button>
         <button onClick={calculate} className="equal">=</button>
-        <button onClick={() => handleInput(')')} className="parenthesis">()</button>
       </div>
     </div>
   );
